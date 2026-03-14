@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Sensor Debug</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; color:#0f0; font-family:monospace; font-size:14px; padding:20px; }
+    .row { padding:8px 0; border-bottom:1px solid #111; line-height:1.6; }
+    .label { color:#884466; }
+    .val { color:#0f0; font-size:16px; }
+    h2 { color:#ff69b4; margin:16px 0 8px; }
+  </style>
+</head>
+<body>
+  <h2>📡 Sensor Debug</h2>
+
+  <div class="row"><span class="label">deviceorientation: </span><span class="val" id="do-status">waiting...</span></div>
+  <div class="row"><span class="label">α (alpha/yaw): </span><span class="val" id="alpha">—</span></div>
+  <div class="row"><span class="label">β (beta/pitch): </span><span class="val" id="beta">—</span></div>
+  <div class="row"><span class="label">γ (gamma/roll): </span><span class="val" id="gamma">—</span></div>
+
+  <h2>📡 Absolute</h2>
+  <div class="row"><span class="label">deviceorientationabsolute: </span><span class="val" id="abs-status">waiting...</span></div>
+  <div class="row"><span class="label">α absolute: </span><span class="val" id="abs-alpha">—</span></div>
+
+  <h2>📐 Motion</h2>
+  <div class="row"><span class="label">devicemotion: </span><span class="val" id="dm-status">waiting...</span></div>
+  <div class="row"><span class="label">acc x,y,z: </span><span class="val" id="acc">—</span></div>
+  <div class="row"><span class="label">rotation rate α,β,γ: </span><span class="val" id="rot">—</span></div>
+
+  <h2>📱 Device</h2>
+  <div class="row"><span class="label">userAgent: </span><span class="val" id="ua" style="font-size:10px;word-break:break-all;"></span></div>
+
+  <script>
+    document.getElementById('ua').textContent = navigator.userAgent;
+
+    window.addEventListener('deviceorientation', e => {
+      document.getElementById('do-status').textContent = '✅ FIRING';
+      document.getElementById('alpha').textContent = e.alpha !== null ? e.alpha.toFixed(2) : 'null';
+      document.getElementById('beta').textContent  = e.beta  !== null ? e.beta.toFixed(2)  : 'null';
+      document.getElementById('gamma').textContent = e.gamma !== null ? e.gamma.toFixed(2) : 'null';
+    }, true);
+
+    window.addEventListener('deviceorientationabsolute', e => {
+      document.getElementById('abs-status').textContent = '✅ FIRING';
+      document.getElementById('abs-alpha').textContent  = e.alpha !== null ? e.alpha.toFixed(2) : 'null';
+    }, true);
+
+    window.addEventListener('devicemotion', e => {
+      document.getElementById('dm-status').textContent = '✅ FIRING';
+      const a = e.accelerationIncludingGravity;
+      const r = e.rotationRate;
+      if(a) document.getElementById('acc').textContent = `${a.x?.toFixed(1)}, ${a.y?.toFixed(1)}, ${a.z?.toFixed(1)}`;
+      if(r) document.getElementById('rot').textContent = `${r.alpha?.toFixed(1)}, ${r.beta?.toFixed(1)}, ${r.gamma?.toFixed(1)}`;
+    }, true);
+  </script>
+</body>
+</html>
