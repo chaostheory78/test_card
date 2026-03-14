@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Happy Mother's Day 💐</title>
+
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; background: #0d000a; font-family: Georgia, serif; }
+
+    /* ── Splash screen ── */
+    #splash {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, #2d0030 0%, #0d000a 100%);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; z-index: 9999; text-align: center;
+      padding: 30px; gap: 20px;
+      transition: opacity 1s ease;
+    }
+    #splash.fade { opacity: 0; pointer-events: none; }
+
+    .icon { font-size: 4.5em; animation: heartbeat 1.4s ease-in-out infinite; }
+    h1 { color: #ff69b4; font-size: 1.6em; font-weight: normal; letter-spacing: 0.06em; }
+    p.sub { color: #ffb6c1; font-size: 0.95em; line-height: 1.7; max-width: 290px; }
+    #status { color: #ff8fb1; font-size: 0.82em; border: 1px solid #441122;
+      padding: 10px 22px; border-radius: 20px; background: rgba(255,20,147,0.08); }
+
+    .ring {
+      width: 72px; height: 72px;
+      border: 3px solid transparent;
+      border-top-color: #ff69b4; border-right-color: #ff1493;
+      border-radius: 50%; animation: spin 1.1s linear infinite;
+    }
+
+    /* ── Distance bar ── */
+    #distbar {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: rgba(70,0,35,0.9); color: #ffb6c1; font-size: 0.9em;
+      padding: 11px 26px; border-radius: 30px; border: 1px solid #ff69b4;
+      z-index: 1000; text-align: center; display: none; max-width: 88vw;
+      font-family: Georgia, serif;
+    }
+
+    @keyframes spin      { to { transform: rotate(360deg); } }
+    @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+  </style>
+</head>
+<body>
+
+  <!-- Splash -->
+  <div id="splash">
+    <div class="icon">💐</div>
+    <h1>Mother's Day Surprise</h1>
+    <div class="ring"></div>
+    <p class="sub">Getting your location…<br>Please allow <strong style="color:#ff69b4">camera &amp; GPS</strong> access when asked.</p>
+    <div id="status">📡 Finding your position…</div>
+  </div>
+
+  <!-- Distance hint -->
+  <div id="distbar"></div>
+
+  <!-- ══════════════════════════════════
+       GPS AR SCENE
+       Card image + hearts appear at the
+       given coordinates facing west
+  ══════════════════════════════════ -->
+  <a-scene
+    vr-mode-ui="enabled: false"
+    arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+    renderer="antialias: true; alpha: true"
+    embedded
+  >
+    <a-assets>
+      <img id="cardImg" src="./card.png" crossorigin="anonymous" />
+    </a-assets>
+
+    <a-camera gps-camera rotation-reader></a-camera>
+
+    <!--
+      LAT: 50.78942812717267
+      LNG: -1.0841221818162863
+      Card faces WEST so rotation is 0 90 0
+      (rotated 90deg around Y axis = facing west)
+    -->
+
+    <!-- ══ THE CARD IMAGE — floating upright on the street ══ -->
+    <a-image
+      src="#cardImg"
+      gps-entity-place="latitude: 50.78942812717267; longitude: -1.0841221818162863;"
+      width="3" height="1.8"
+      position="0 1.5 0"
+      rotation="0 90 0"
+      look-at="[gps-camera]"
+      animation__pulse="property: scale; from: 1 1 1; to: 1.05 1.05 1.05; dur: 1800; loop: true; dir: alternate; easing: easeInOutSine">
+    </a-image>
+
+    <!-- ══ SPINNING PINK RING around the card ══ -->
+    <a-torus
+      gps-entity-place="latitude: 50.78942812717267; longitude: -1.0841221818162863;"
+      radius="2.2" tube="0.07" color="#ff69b4"
+      position="0 1.5 0"
+      rotation="0 90 0"
+      animation="property: rotation; from: 0 90 0; to: 360 90 0; dur: 10000; loop: true; easing: linear">
+    </a-torus>
+
+    <!-- ══ BIG CENTRE HEART — floats up from card ══ -->
+    <a-sphere
+      gps-entity-place="latitude: 50.78942812717267; longitude: -1.0841221818162863;"
+      color="#ff0055" radius="0.35" position="0 3.8 0"
+      animation__float="property: position; from: 0 3.8 0; to: 0 5.2 0; dur: 2800; loop: true; dir: alternate; easing: easeInOutSine"
+      animation__pulse="property: scale; from: 1 1 1; to: 1.4 1.4 1.4; dur: 1400; loop: true; dir: alternate">
+    </a-sphere>
+
+    <!-- Left heart -->
+    <a-sphere
+      gps-entity-place="latitude: 50.78943512717267; longitude: -1.0841221818162863;"
+      color="#ff69b4" radius="0.22" position="0 3.2 0"
+      animation="property: position; from: 0 3.2 0; to: 0 4.8 0; dur: 2400; loop: true; dir: alternate; easing: easeInOutSine; delay: 300">
+    </a-sphere>
+
+    <!-- Right heart -->
+    <a-sphere
+      gps-entity-place="latitude: 50.78942112717267; longitude: -1.0841221818162863;"
+      color="#ff0044" radius="0.22" position="0 3.0 0"
+      animation="property: position; from: 0 3.0 0; to: 0 4.6 0; dur: 2600; loop: true; dir: alternate; easing: easeInOutSine; delay: 500">
+    </a-sphere>
+
+    <!-- Gold sparkle left -->
+    <a-sphere
+      gps-entity-place="latitude: 50.78943212717267; longitude: -1.0841331818162863;"
+      color="#FFD700" radius="0.14" position="0 4.5 0"
+      animation__scale="property: scale; from: 0.5 0.5 0.5; to: 2.5 2.5 2.5; dur: 900; loop: true; dir: alternate"
+      animation__float="property: position; from: 0 4.5 0; to: 0 5.8 0; dur: 1500; loop: true; dir: alternate">
+    </a-sphere>
+
+    <!-- Gold sparkle right -->
+    <a-sphere
+      gps-entity-place="latitude: 50.78942412717267; longitude: -1.0841111818162863;"
+      color="#FFD700" radius="0.14" position="0 4.2 0"
+      animation__scale="property: scale; from: 0.5 0.5 0.5; to: 2.5 2.5 2.5; dur: 700; loop: true; dir: alternate; delay: 250"
+      animation__float="property: position; from: 0 4.2 0; to: 0 5.5 0; dur: 1700; loop: true; dir: alternate; delay: 250">
+    </a-sphere>
+
+    <!-- White twinkle top -->
+    <a-sphere
+      gps-entity-place="latitude: 50.78942812717267; longitude: -1.0841221818162863;"
+      color="#fffacd" radius="0.09" position="0 6.0 0"
+      animation="property: scale; from: 1 1 1; to: 4 4 4; dur: 1100; loop: true; dir: alternate; delay: 100">
+    </a-sphere>
+
+    <!-- ══ "I LOVE YOU MUM" TEXT floating above card ══ -->
+    <a-text
+      gps-entity-place="latitude: 50.78942812717267; longitude: -1.0841221818162863;"
+      value="I Love You Mum"
+      align="center" color="#ffffff" width="18"
+      position="0 6.8 0"
+      rotation="0 90 0"
+      animation="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 1600; loop: true; dir: alternate; easing: easeInOutSine">
+    </a-text>
+
+    <a-text
+      gps-entity-place="latitude: 50.78942812717267; longitude: -1.0841221818162863;"
+      value="Happy Mother's Day"
+      align="center" color="#ffb6c1" width="14"
+      position="0 5.8 0"
+      rotation="0 90 0">
+    </a-text>
+
+  </a-scene>
+
+  <script>
+    const splash  = document.getElementById('splash');
+    const status  = document.getElementById('status');
+    const distbar = document.getElementById('distbar');
+
+    const LAT = 50.78942812717267;
+    const LNG = -1.0841221818162863;
+    const FENCE = 150; // metres — within this the AR is fully visible
+
+    function toRad(v) { return v * Math.PI / 180; }
+    function dist(la1, lo1, la2, lo2) {
+      const R = 6371000, dLa = toRad(la2-la1), dLo = toRad(lo2-lo1);
+      const a = Math.sin(dLa/2)**2 + Math.cos(toRad(la1))*Math.cos(toRad(la2))*Math.sin(dLo/2)**2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    let splashDone = false;
+
+    navigator.geolocation.watchPosition(pos => {
+      const { latitude, longitude } = pos.coords;
+      const d = Math.round(dist(latitude, longitude, LAT, LNG));
+
+      status.textContent = `📍 Got you! ~${d}m away`;
+
+      if (!splashDone) {
+        splashDone = true;
+        setTimeout(() => {
+          splash.classList.add('fade');
+          setTimeout(() => splash.style.display = 'none', 1000);
+          distbar.style.display = 'block';
+        }, 1200);
+      }
+
+      distbar.style.display = 'block';
+      if (d <= FENCE) {
+        distbar.innerHTML = `🌸 <strong>Look ahead — your surprise is here!</strong> 💐`;
+        distbar.style.borderColor = '#ff69b4';
+      } else {
+        distbar.innerHTML = `📍 ${d}m away — keep walking… 🌸`;
+        distbar.style.borderColor = '#441122';
+      }
+
+    }, err => {
+      status.textContent = '❌ Please enable GPS and try again.';
+    }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 });
+  </script>
+
+</body>
+</html>
