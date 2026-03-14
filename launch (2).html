@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Mother's Day Surprise 💐</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at center, #2d0030 0%, #0d000a 100%);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center;
+      font-family: Georgia, serif; padding: 30px; gap: 22px;
+      color: #ffb6c1;
+    }
+    .icon { font-size: 4.5em; animation: heartbeat 1.4s ease-in-out infinite; }
+    h1 { color: #ff69b4; font-size: 1.6em; font-weight: normal; }
+    p { font-size: 0.95em; line-height: 1.7; max-width: 300px; }
+    @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+  </style>
+</head>
+<body>
+  <div class="icon">💐</div>
+  <h1>Opening your surprise…</h1>
+  <p>Just a moment! 🌸</p>
+  <script>
+    const arURL = 'https://chaostheory78.github.io/test_card/index.html';
+    window.location.replace(
+      'intent://' + arURL.replace('https://', '') +
+      '#Intent;scheme=https;package=com.android.chrome;end'
+    );
+  </script>
+</body>
+</html>
