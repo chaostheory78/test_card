@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Sensor Debug 2</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; color:#0f0; font-family:monospace; font-size:13px; padding:16px; }
+    .row { padding:7px 0; border-bottom:1px solid #111; line-height:1.6; }
+    .label { color:#884466; }
+    .val { color:#0f0; }
+    h2 { color:#ff69b4; margin:14px 0 6px; }
+    .btn { display:block; width:100%;
+      background:linear-gradient(135deg,#ff1493,#ff69b4);
+      color:#fff; font-size:1em; padding:14px;
+      border-radius:50px; border:none; margin:14px 0; }
+  </style>
+</head>
+<body>
+  <h2>📡 Generic Sensor API Test</h2>
+  <button class="btn" id="btn">👆 Start sensors</button>
+
+  <h2>AbsoluteOrientationSensor</h2>
+  <div class="row"><span class="label">status: </span><span class="val" id="abs-status">—</span></div>
+  <div class="row"><span class="label">quaternion: </span><span class="val" id="abs-q">—</span></div>
+
+  <h2>RelativeOrientationSensor</h2>
+  <div class="row"><span class="label">status: </span><span class="val" id="rel-status">—</span></div>
+  <div class="row"><span class="label">quaternion: </span><span class="val" id="rel-q">—</span></div>
+
+  <h2>Gyroscope</h2>
+  <div class="row"><span class="label">status: </span><span class="val" id="gyro-status">—</span></div>
+  <div class="row"><span class="label">x,y,z: </span><span class="val" id="gyro-xyz">—</span></div>
+
+  <h2>Accelerometer</h2>
+  <div class="row"><span class="label">status: </span><span class="val" id="acc-status">—</span></div>
+  <div class="row"><span class="label">x,y,z: </span><span class="val" id="acc-xyz">—</span></div>
+
+  <script>
+    document.getElementById('btn').addEventListener('click', () => {
+      document.getElementById('btn').textContent = '✅ Running…';
+
+      // ── AbsoluteOrientationSensor ──
+      try {
+        const s = new AbsoluteOrientationSensor({ frequency: 30 });
+        s.addEventListener('reading', () => {
+          document.getElementById('abs-status').textContent = '✅ WORKING';
+          document.getElementById('abs-q').textContent =
+            s.quaternion.map(v => v.toFixed(3)).join(', ');
+        });
+        s.addEventListener('error', e => {
+          document.getElementById('abs-status').textContent = '❌ ' + e.error.message;
+        });
+        s.start();
+        document.getElementById('abs-status').textContent = 'started…';
+      } catch(e) {
+        document.getElementById('abs-status').textContent = '❌ ' + e.message;
+      }
+
+      // ── RelativeOrientationSensor ──
+      try {
+        const s = new RelativeOrientationSensor({ frequency: 30 });
+        s.addEventListener('reading', () => {
+          document.getElementById('rel-status').textContent = '✅ WORKING';
+          document.getElementById('rel-q').textContent =
+            s.quaternion.map(v => v.toFixed(3)).join(', ');
+        });
+        s.addEventListener('error', e => {
+          document.getElementById('rel-status').textContent = '❌ ' + e.error.message;
+        });
+        s.start();
+        document.getElementById('rel-status').textContent = 'started…';
+      } catch(e) {
+        document.getElementById('rel-status').textContent = '❌ ' + e.message;
+      }
+
+      // ── Gyroscope ──
+      try {
+        const s = new Gyroscope({ frequency: 30 });
+        s.addEventListener('reading', () => {
+          document.getElementById('gyro-status').textContent = '✅ WORKING';
+          document.getElementById('gyro-xyz').textContent =
+            `${s.x.toFixed(3)}, ${s.y.toFixed(3)}, ${s.z.toFixed(3)}`;
+        });
+        s.start();
+        document.getElementById('gyro-status').textContent = 'started…';
+      } catch(e) {
+        document.getElementById('gyro-status').textContent = '❌ ' + e.message;
+      }
+
+      // ── Accelerometer ──
+      try {
+        const s = new Accelerometer({ frequency: 30 });
+        s.addEventListener('reading', () => {
+          document.getElementById('acc-status').textContent = '✅ WORKING';
+          document.getElementById('acc-xyz').textContent =
+            `${s.x.toFixed(3)}, ${s.y.toFixed(3)}, ${s.z.toFixed(3)}`;
+        });
+        s.start();
+        document.getElementById('acc-status').textContent = 'started…';
+      } catch(e) {
+        document.getElementById('acc-status').textContent = '❌ ' + e.message;
+      }
+    });
+  </script>
+</body>
+</html>
