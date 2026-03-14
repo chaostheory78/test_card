@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Axis Debug</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; color:#0f0; font-family:monospace; font-size:16px; padding:20px; }
+    .row { padding:12px 0; border-bottom:1px solid #111; }
+    .label { color:#ff69b4; font-size:13px; }
+    .val { font-size:22px; font-weight:bold; }
+    .bar { height:12px; background:#ff1493; margin-top:4px; border-radius:4px; transition: width 0.1s; }
+    h2 { color:#ff69b4; margin:16px 0 8px; }
+    .btn { display:block; width:100%;
+      background:linear-gradient(135deg,#ff1493,#ff69b4);
+      color:#fff; font-size:1.1em; padding:16px;
+      border-radius:50px; border:none; margin:14px 0; }
+    #log { color:#884466; font-size:11px; margin-top:20px; line-height:1.8; }
+  </style>
+</head>
+<body>
+  <h2>📐 Live Axis Tester</h2>
+  <button class="btn" id="btn">👆 Start — then tilt phone</button>
+
+  <div class="row">
+    <div class="label">X axis (tilt left/right)</div>
+    <div class="val" id="ax">—</div>
+    <div class="bar" id="bar-x" style="width:50%"></div>
+  </div>
+  <div class="row">
+    <div class="label">Y axis (tilt up/down)</div>
+    <div class="val" id="ay">—</div>
+    <div class="bar" id="bar-y" style="width:50%"></div>
+  </div>
+  <div class="row">
+    <div class="label">Z axis (face toward/away)</div>
+    <div class="val" id="az">—</div>
+    <div class="bar" id="bar-z" style="width:50%"></div>
+  </div>
+
+  <div id="log">Tilt phone in each direction and watch which axis changes 👆</div>
+
+  <script>
+    document.getElementById('btn').addEventListener('click', () => {
+      document.getElementById('btn').textContent = '✅ Running — tilt phone!';
+
+      try {
+        const acc = new Accelerometer({ frequency: 30 });
+        acc.addEventListener('reading', () => {
+          const x = acc.x, y = acc.y, z = acc.z;
+
+          document.getElementById('ax').textContent = x.toFixed(2);
+          document.getElementById('ay').textContent = y.toFixed(2);
+          document.getElementById('az').textContent = z.toFixed(2);
+
+          // Visual bars — centre = 50%, range -10 to 10
+          document.getElementById('bar-x').style.width = Math.round(50 + (x/10)*50) + '%';
+          document.getElementById('bar-y').style.width = Math.round(50 + (y/10)*50) + '%';
+          document.getElementById('bar-z').style.width = Math.round(50 + (z/10)*50) + '%';
+        });
+        acc.start();
+      } catch(e) {
+        document.getElementById('log').textContent = '❌ ' + e.message;
+      }
+    });
+  </script>
+</body>
+</html>
