@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Sensor Debug</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; color:#0f0; font-family:monospace; font-size:14px; padding:20px; }
+    .row { padding:8px 0; border-bottom:1px solid #111; line-height:1.6; }
+    .label { color:#884466; }
+    .val { color:#0f0; font-size:16px; }
+    h2 { color:#ff69b4; margin:16px 0 8px; }
+    .btn {
+      display:block; width:100%;
+      background:linear-gradient(135deg,#ff1493,#ff69b4);
+      color:#fff; font-size:1.1em; font-family:Georgia,serif;
+      padding:16px; border-radius:50px; border:none;
+      cursor:pointer; margin:20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>📡 Sensor Debug</h2>
+
+  <button class="btn" id="permBtn">👆 Tap to enable sensors</button>
+
+  <div class="row"><span class="label">deviceorientation: </span><span class="val" id="do-status">waiting...</span></div>
+  <div class="row"><span class="label">α (alpha/yaw): </span><span class="val" id="alpha">—</span></div>
+  <div class="row"><span class="label">β (beta/pitch): </span><span class="val" id="beta">—</span></div>
+  <div class="row"><span class="label">γ (gamma/roll): </span><span class="val" id="gamma">—</span></div>
+
+  <h2>📐 Accelerometer</h2>
+  <div class="row"><span class="label">acc x,y,z: </span><span class="val" id="acc">—</span></div>
+
+  <h2>🔧 Permissions API</h2>
+  <div class="row"><span class="label">gyroscope: </span><span class="val" id="perm-gyro">—</span></div>
+  <div class="row"><span class="label">accelerometer: </span><span class="val" id="perm-acc">—</span></div>
+
+  <script>
+    function startSensors(){
+      window.addEventListener('deviceorientation', e => {
+        document.getElementById('do-status').textContent = '✅ FIRING';
+        document.getElementById('alpha').textContent = e.alpha !== null ? e.alpha.toFixed(2) : 'NULL ❌';
+        document.getElementById('beta').textContent  = e.beta  !== null ? e.beta.toFixed(2)  : 'NULL ❌';
+        document.getElementById('gamma').textContent = e.gamma !== null ? e.gamma.toFixed(2) : 'NULL ❌';
+      }, true);
+
+      window.addEventListener('devicemotion', e => {
+        const a = e.accelerationIncludingGravity;
+        if(a) document.getElementById('acc').textContent =
+          `${a.x?.toFixed(2)}, ${a.y?.toFixed(2)}, ${a.z?.toFixed(2)}`;
+      }, true);
+
+      // Check Permissions API
+      if(navigator.permissions){
+        navigator.permissions.query({name:'gyroscope'}).then(r => {
+          document.getElementById('perm-gyro').textContent = r.state;
+        }).catch(() => document.getElementById('perm-gyro').textContent = 'API not supported');
+        navigator.permissions.query({name:'accelerometer'}).then(r => {
+          document.getElementById('perm-acc').textContent = r.state;
+        }).catch(() => document.getElementById('perm-acc').textContent = 'API not supported');
+      }
+    }
+
+    document.getElementById('permBtn').addEventListener('click', () => {
+      document.getElementById('permBtn').textContent = '✅ Sensors started — move phone!';
+
+      // Try Generic Sensor API permission request
+      if(typeof DeviceMotionEvent !== 'undefined' &&
+         typeof DeviceMotionEvent.requestPermission === 'function'){
+        DeviceMotionEvent.requestPermission().then(startSensors);
+      } else {
+        startSensors();
+      }
+
+      // Also try Generic Sensor API directly
+      try {
+        const gyro = new Gyroscope({frequency: 60});
+        gyro.addEventListener('reading', () => {
+          document.getElementById('alpha').textContent =
+            `Gyro x:${gyro.x?.toFixed(2)} y:${gyro.y?.toFixed(2)} z:${gyro.z?.toFixed(2)}`;
+        });
+        gyro.start();
+        document.getElementById('do-status').textContent = '✅ Generic Sensor API';
+      } catch(err) {
+        document.getElementById('do-status').textContent += ` | Gyroscope API: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
