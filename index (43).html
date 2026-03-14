@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Happy Mother's Day 💐</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; overflow:hidden; background:#000; }
+
+    #cam {
+      position: fixed; inset:0;
+      width:100%; height:100%;
+      object-fit: cover; z-index: 0;
+    }
+
+    #canvas {
+      position: fixed; inset:0;
+      width:100%; height:100%;
+      z-index: 1; pointer-events:none;
+    }
+
+    #splash {
+      position: fixed; inset:0;
+      background: radial-gradient(ellipse at center, #2d0030 0%, #0d000a 100%);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; z-index: 9999; text-align: center;
+      padding: 30px; gap: 18px; transition: opacity 1s ease;
+      font-family: Georgia, serif;
+    }
+    #splash.hide { opacity:0; pointer-events:none; }
+    .icon { font-size:4em; animation: hb 1.4s ease-in-out infinite; }
+    h1 { color:#ff69b4; font-size:1.5em; font-weight:normal; }
+    .sub { color:#ffb6c1; font-size:0.9em; line-height:1.7; }
+    .ring { width:60px; height:60px; border:3px solid transparent;
+      border-top-color:#ff69b4; border-right-color:#ff1493;
+      border-radius:50%; animation:spin 1.1s linear infinite; }
+
+    #banner {
+      position: fixed; bottom:20px; left:10px; right:10px;
+      background: rgba(60,0,30,0.88); color:#ffb6c1;
+      font-family: Georgia, serif; font-size:0.95em;
+      padding:12px 20px; border-radius:20px;
+      border:1px solid #ff69b4; text-align:center;
+      z-index:9999; display:none;
+    }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    @keyframes hb { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+  </style>
+</head>
+<body>
+
+  <video id="cam" autoplay playsinline muted></video>
+  <canvas id="canvas"></canvas>
+
+  <div id="splash">
+    <div class="icon">💐</div>
+    <h1>Mother's Day Surprise</h1>
+    <div class="ring"></div>
+    <p class="sub">Allow camera access when asked</p>
+  </div>
+
+  <div id="banner">🌸 Happy Mother's Day! 💐</div>
+
+  <script>
+    const splash = document.getElementById('splash');
+    const banner = document.getElementById('banner');
+    const cam    = document.getElementById('cam');
+    const canvas = document.getElementById('canvas');
+    const ctx    = canvas.getContext('2d');
+
+    const cardImg = new Image();
+    cardImg.src = './card.png';
+
+    let t = 0;
+
+    function resize(){
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Small floating hearts — fewer, smaller, transparent
+    const hearts = [];
+    for(let i = 0; i < 10; i++){
+      hearts.push({
+        x: Math.random(),
+        y: 0.1 + Math.random() * 0.6,
+        vy: -(0.0015 + Math.random() * 0.002),
+        size: 4 + Math.random() * 8,
+        color: ['#ff0055','#ff69b4','#ff1493','#FFD700'][Math.floor(Math.random()*4)],
+        phase: Math.random() * Math.PI * 2,
+        alpha: 0.6 + Math.random() * 0.4
+      });
+    }
+
+    function drawFrame(){
+      const W = canvas.width;
+      const H = canvas.height;
+
+      // CLEAR to fully transparent each frame so camera shows through
+      ctx.clearRect(0, 0, W, H);
+      t += 0.02;
+
+      // ── Card image — rectangular, centred ──
+      if(cardImg.complete && cardImg.naturalWidth > 0){
+        const cw = W * 0.78;
+        const ch = cw * (cardImg.naturalHeight / cardImg.naturalWidth);
+        const cx = (W - cw) / 2;
+        const cy = (H - ch) / 2 + Math.sin(t * 0.7) * 6;
+
+        // Soft shadow behind card
+        ctx.save();
+        ctx.shadowColor = 'rgba(255,20,147,0.5)';
+        ctx.shadowBlur = 24;
+        ctx.drawImage(cardImg, cx, cy, cw, ch);
+        ctx.restore();
+
+        // Glowing border around card
+        ctx.save();
+        ctx.strokeStyle = `rgba(255,105,180,${0.4 + 0.3 * Math.sin(t)})`;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(cx, cy, cw, ch);
+        ctx.restore();
+      }
+
+      // ── Floating hearts / sparkles ──
+      hearts.forEach(p => {
+        p.y += p.vy;
+        if(p.y < -0.05) p.y = 1.05;
+        const px = p.x * W + Math.sin(t + p.phase) * 15;
+        const py = p.y * H;
+        const pulse = 1 + 0.25 * Math.sin(t * 2 + p.phase);
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(px, py, p.size * pulse, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // ── Message ──
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.font = `bold ${Math.round(W * 0.062)}px Georgia, serif`;
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = '#ff1493';
+      ctx.shadowBlur = 14;
+      const s = 1 + 0.04 * Math.sin(t);
+      ctx.setTransform(s, 0, 0, s, W/2, H * 0.83);
+      ctx.fillText('I Love You Mum', 0, 0);
+      ctx.restore();
+
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.font = `${Math.round(W * 0.043)}px Georgia, serif`;
+      ctx.fillStyle = '#ffb6c1';
+      ctx.shadowColor = '#ff1493';
+      ctx.shadowBlur = 8;
+      ctx.fillText("Happy Mother's Day", W/2, H * 0.89);
+      ctx.restore();
+
+      requestAnimationFrame(drawFrame);
+    }
+
+    // Start camera
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false
+    }).then(stream => {
+      cam.srcObject = stream;
+      cam.onloadedmetadata = () => {
+        cam.play();
+        splash.classList.add('hide');
+        setTimeout(() => splash.style.display = 'none', 1000);
+        banner.style.display = 'block';
+        drawFrame();
+      };
+    }).catch(err => {
+      document.querySelector('.sub').textContent = '❌ Camera blocked. Tap the lock icon in the address bar, allow camera, then reload.';
+      document.querySelector('.ring').style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>
